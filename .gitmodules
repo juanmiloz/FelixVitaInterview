@@ -1,5 +1,5 @@
-[submodule "backendFelix"]
-	path = backendFelix
+[submodule "BackendFelixVita"]
+	path = BackendFelixVita
 	url = https://github.com/juanmiloz/backendFelix.git
 [submodule "FrontFelixVita"]
 	path = FrontFelixVita
