@@ -1,0 +1,60 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:14-alpine
+    container_name: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - ~/apps/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=admin
+      - POSTGRES_DB=felixVita
+    networks:
+      - common-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d felixVita"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+  api:
+    build:
+      context: BackendFelixVita/
+      target: production
+    ports:
+      - 3000:3000
+    depends_on:
+      postgres:
+        condition: service_healthy
+        restart: true
+    networks:
+      - common-net
+    container_name: app
+  frontend:
+    build:
+      context: FrontFelixVita/
+    ports:
+      - 4200:4200
+    depends_on:
+      - api
+      - postgres
+    networks:
+      - common-net
+    container_name: front
+networks:
+  common-net: 
+  # api:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile # Asegúrate de que este archivo exista en el contexto
+  #   volumes:
+  #     - ./:/app
+  #     - /app/node_modules # Esto es correcto para evitar conflictos
+  #   ports:
+  #     - "4000:4000" # Asegúrate de que tu aplicación escuche en este puerto
+  #   command: npm run dev # Asegúrate de que este script esté definido en package.json
+  #   depends_on:
+  #     - postgres
